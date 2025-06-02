@@ -7,30 +7,31 @@ def read_file(file):
     n = lines[0][0] # 프로세스 개수
     m = lines[0][1] # resource type 개수
     total = lines[1] # type 별 리소스 개수
-    max_claim = lines[2 : 2+n]
-    current = lines[2+n : 2+2*n]
+    max_claim = lines[2 : 2+n] # 최대 사용 자원
+    allocation = lines[2+n : 2+2*n]
     need = [[0]*m for _ in range(n)]
     available = []
 
     for i in range(n):
         for j in range(m):
-            need[i][j] = max_claim[i][j] - current[i][j]
+            need[i][j] = max_claim[i][j] - allocation[i][j]
 
     for j in range(m):
         temp = 0
         for i in range(n):
-            temp += current[i][j]
+            temp += allocation[i][j]
 
         available.append(total[j] - temp)
 
-    return n, m, total, max_claim, current, need, available
+    return n, m, total, max_claim, allocation, need, available
 
-def validation(n, m, total, max_claim, current):
+# 입력 오류 판단
+def validation(n, m, total, max_claim, allocation):
     # 자원 할당은 total을 넘을 수 없음
     for j in range(m):
         sum = 0
         for i in range(n):
-            sum += current[i][j]
+            sum += allocation[i][j]
         if total[j] < sum:
             print("총 자원 개수를 초과하여 프로세스에 할당할 수는 없습니다.")
             return False
@@ -46,7 +47,7 @@ def validation(n, m, total, max_claim, current):
 
 
 # safety 체크
-def is_safe(n, m, current, need, available):
+def is_safe(n, m, allocation, need, available):
     safe_sequence = []
     unit = available[:] 
     finish = [False] * n 
@@ -64,7 +65,7 @@ def is_safe(n, m, current, need, available):
                 # 모든 need가 unit보다 작아서 자원줄 수 있으면 일단 자원 주고 실행
                 if possible:  
                     for j in range(m):
-                        unit[j] += current[i][j] # 자원 회수
+                        unit[j] += allocation[i][j] # 자원 회수
                     finish[i] = True
                     safe_sequence.append(i)
                     next = True 
@@ -78,9 +79,9 @@ def is_safe(n, m, current, need, available):
 
 
 def main():
-    n, m , total, max_claim, current, need, available = read_file("input.txt")
-    safe_sequence = is_safe(n, m, current, need, available)
-    valid = validation(n, m, total, max_claim, current)
+    n, m , total, max_claim, allocation, need, available = read_file("input.txt")
+    safe_sequence = is_safe(n, m, allocation, need, available)
+    valid = validation(n, m, total, max_claim, allocation)
 
     if not valid:
         print("프로그램을 종료합니다.")
