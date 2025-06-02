@@ -1,4 +1,3 @@
-# input.txt에 있는 내용 읽어오기
 def read_file(file):
     with open(file, 'r') as f:
         # 줄 단위로 읽어오기
@@ -26,8 +25,8 @@ def read_file(file):
     return n, m, total, max_claim, allocation, need, available
 
 # 입력 오류 판단
-def validation(n, m, total, max_claim, allocation):
-    # 자원 할당은 total을 넘을 수 없음
+def is_valid(n, m, total, max_claim, allocation):
+    # 각 프로세스의 allocation은 total을 넘을 수 없음
     for j in range(m):
         sum = 0
         for i in range(n):
@@ -36,13 +35,20 @@ def validation(n, m, total, max_claim, allocation):
             print("총 자원 개수를 초과하여 프로세스에 할당할 수는 없습니다.")
             return False
 
+    # 각 프로세스의 allocation은 max_claim을 넘을 수 없음
+    for i in range(n):
+        for j in range(m):
+            if allocation[i][j] > max_claim[i][j]:
+                print("최대 자원 요구량을 초과하여 자원이 할당될 수는 없습니다.")
+                return False
+
     # 각 프로세스의 max_claim은 total 개수 넘을 수 없음
     for i in range(n):
         for j in range(m):
             if max_claim[i][j] > total[j]:
                 print("존재하는 자원의 개수를 초과할 수 없습니다.")
                 return False
-    
+            
     return True
 
 
@@ -81,7 +87,7 @@ def is_safe(n, m, allocation, need, available):
 def main():
     n, m , total, max_claim, allocation, need, available = read_file("input.txt")
     safe_sequence = is_safe(n, m, allocation, need, available)
-    valid = validation(n, m, total, max_claim, allocation)
+    valid = is_valid(n, m, total, max_claim, allocation)
 
     if not valid:
         print("프로그램을 종료합니다.")
